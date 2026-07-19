@@ -4,10 +4,6 @@
 class_name DateUtils
 extends RefCounted
 
-## 默认构造函数
-func _init():
-	pass
-
 ## 格式化时间戳为指定格式的字符串（本地时区）
 ## 参数 pattern: 格式模板，支持占位符 yyyy/MM/dd/HH/mm/ss
 ## 参数 timestamp: 时间戳（秒），默认-1表示当前系统时间

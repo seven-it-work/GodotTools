@@ -218,8 +218,9 @@ static func list_files(dir_path: String) -> Array:
 
 ## 列出目录下的所有文件（递归子目录）
 ## 参数 dir_path: 目录路径
+## 参数 filter: 过滤回调，接收文件完整路径 String，返回 bool；传 null 则不过滤
 ## 返回: 文件路径数组
-static func list_files_recursive(dir_path: String) -> Array:
+static func list_files_recursive(dir_path: String, filter: Callable=func(...arg):return true) -> Array:
 	var result = []
 	var dir = DirAccess.open(dir_path)
 	if dir == null:
@@ -228,13 +229,19 @@ static func list_files_recursive(dir_path: String) -> Array:
 	var file_name = dir.get_next()
 	while file_name != "":
 		if not file_name.begins_with("."):
-			var full_path = dir_path.ends_with("/") and (dir_path + file_name) or (dir_path + "/" + file_name)
+			var full_path: String
+			if dir_path.ends_with("/"):
+				full_path = dir_path + file_name
+			else:
+				full_path = dir_path + "/" + file_name
 			if FileAccess.file_exists(full_path):
-				result.append(full_path)
+				if filter.call(full_path):
+					result.append(full_path)
 			elif DirAccess.dir_exists_absolute(full_path):
 				var sub_files = list_files_recursive(full_path)
 				for f in sub_files:
-					result.append(f)
+					if filter.call(f):
+						result.append(f)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 	return result
